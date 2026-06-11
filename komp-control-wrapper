@@ -1,10 +1,19 @@
 #!/bin/bash
 
 # Komp TimeTracker wrapper script for Flatpak
-# This handles environment setup, dependency checks, and runs the CLI
+# This handles environment setup and runs the CLI
 
 # Set up environment for Flatpak
-export PYTHONPATH=/app/share/komp-timetracker
+# The Python packages are installed in /app/lib/pythonX.Y/site-packages
+# The komp_timetracker package is in /app/share/komp-timetracker
+
+# Detect Python version and set library paths
+PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+PYTHON_LIB_DIR="/app/lib/python${PYTHON_VERSION}"
+PYTHON_SITE_PACKAGES="${PYTHON_LIB_DIR}/site-packages"
+
+# Set PYTHONPATH to include our app and the installed dependencies
+export PYTHONPATH="/app/share/komp-timetracker:${PYTHON_SITE_PACKAGES}"
 
 # Set config and database paths
 export KOMP_CONFIG=${XDG_CONFIG_HOME:-$HOME/.config}/komp-timetracker/config.yaml
@@ -20,8 +29,6 @@ if [ ! -f "$KOMP_CONFIG" ]; then
         cp /app/share/komp-timetracker/komp_timetracker/default-config.yaml "$KOMP_CONFIG"
     elif [ -f /app/share/komp-timetracker/komp_timetracker/config.yaml ]; then
         cp /app/share/komp-timetracker/komp_timetracker/config.yaml "$KOMP_CONFIG"
-    elif [ -f /app/share/komp-timetracker/config.yaml ]; then
-        cp /app/share/komp-timetracker/config.yaml "$KOMP_CONFIG"
     else
         # Create a minimal default config
         cat > "$KOMP_CONFIG" << 'EOF'
@@ -41,30 +48,6 @@ EOF
     fi
 fi
 
-# Check for required Python modules and install if missing
-check_python_module() {
-    local module=$1
-    if ! python3 -c "import $module" 2>/dev/null; then
-        echo "Installing missing Python module: $module"
-        if pip3 install --user "$module" 2>/dev/null; then
-            echo "Successfully installed $module"
-        else
-            echo "Warning: Could not install $module automatically"
-            echo "Please install manually: pip3 install --user $module"
-        fi
-    fi
-}
-
-# Check for required modules
-check_python_module pyyaml
-check_python_module pydantic
-check_python_module click
-check_python_module rich
-check_python_module psutil
-check_python_module systemd-python
-check_python_module python-dateutil
-check_python_module pytz
-
-# Run the CLI from the app directory
+# Run the CLI
 cd /app/share/komp-timetracker
 python3 -m komp_timetracker.ui.cli "$@"

@@ -34,6 +34,9 @@ RUNTIME="org.freedesktop.Platform"
 SDK="org.freedesktop.Sdk"
 RUNTIME_VERSION="22.08"
 
+APP_ID="com.komp_timetracker.KompTimeTracker"
+MANIFEST="$SCRIPT_DIR/$APP_ID.json"
+
 echo -e "${BLUE}Checking required runtimes...${NC}"
 
 # Check if Flathub is added
@@ -54,36 +57,28 @@ if ! flatpak list --app | grep -q "${SDK} ${RUNTIME_VERSION}"; then
     flatpak install flathub ${SDK}//${RUNTIME_VERSION} -y
 fi
 
-# Install Python dependencies system-wide to avoid network issues in sandbox
-echo -e "${BLUE}Installing Python dependencies system-wide...${NC}"
-if [ -f "$SCRIPT_DIR/requirements.txt" ]; then
-    sudo pip3 install -r "$SCRIPT_DIR/requirements.txt" 2>/dev/null || {
-        echo -e "${YELLOW}Warning: Could not install Python dependencies system-wide${NC}"
-        echo "You may need to install them manually:"
-        echo "  sudo pip3 install pyyaml pydantic click rich psutil"
-    }
-fi
-
 # Create build directory
 BUILD_DIR="$SCRIPT_DIR/flatpak-build"
-APP_ID="com.komp_timetracker.KompTimeTracker"
-MANIFEST="$SCRIPT_DIR/$APP_ID.json"
-
 mkdir -p "$BUILD_DIR"
 
 echo -e "${BLUE}Building Komp TimeTracker Flatpak...${NC}"
 
+# First, uninstall any existing version
+if flatpak list --user | grep -q "$APP_ID"; then
+    echo -e "${YELLOW}Uninstalling existing version...${NC}"
+    flatpak uninstall --user "$APP_ID" -y || true
+fi
+
 # Build the Flatpak from the script directory
 cd "$SCRIPT_DIR"
 
+# Use --force-clean to ensure a clean build
 flatpak-builder \
     --user \
     --install \
     --force-clean \
     "$BUILD_DIR" \
     "$MANIFEST"
-
-echo -e "${GREEN}Build completed!${NC}"
 
 # Check if build succeeded
 if [ $? -eq 0 ]; then
@@ -95,13 +90,15 @@ if [ $? -eq 0 ]; then
     echo "Or check installation:"
     echo "  flatpak list | grep komp_timetracker"
     echo
-    echo "Note: If you get Python module errors, run:"
+    echo "To test the application:"
     echo "  flatpak run $APP_ID status"
-    echo "This will install any missing Python modules on first run."
+    echo "  flatpak run $APP_ID add-user testuser"
+    echo
+    echo "Note: The first run may take a moment to set up the configuration."
 else
     echo -e "${RED}✗ Build failed${NC}"
     echo
-    echo "Trying alternative build method without build directory..."
+    echo "Trying alternative build method..."
     
     # Try building without specifying build directory
     flatpak-builder \
@@ -113,8 +110,8 @@ else
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Alternative build method succeeded!${NC}"
         echo
-        echo "Note: If you get Python module errors, run:"
-        echo "  flatpak run $APP_ID status"
+        echo "You can now run:"
+        echo "  flatpak run $APP_ID --help"
     else
         echo -e "${RED}✗ All build methods failed${NC}"
         echo
@@ -129,3 +126,5 @@ else
         exit 1
     fi
 fi
+
+echo -e "${GREEN}Build process completed!${NC}"

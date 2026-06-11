@@ -30,18 +30,27 @@
       "name": "komp-timetracker",
       "buildsystem": "simple",
       "build-commands": [
-        "mkdir -p /app/bin /app/share/komp-timetracker/komp_timetracker /app/share/applications",
-        "# Copy all files from current directory (which contains extracted src/) to komp_timetracker package",
-        "cp -r . /app/share/komp-timetracker/komp_timetracker/",
-        "# Remove the wrapper from the package directory (it goes to /app/bin)",
-        "rm -f /app/share/komp-timetracker/komp_timetracker/komp-control-wrapper",
+        "# Create directory structure for Python package",
+        "mkdir -p /app/bin /app/lib /app/share/komp-timetracker /app/share/applications",
+        
+        "# Copy src directory as komp_timetracker package",
+        "cp -r src /app/share/komp-timetracker/komp_timetracker",
+        
         "# Copy config file to package directory",
         "cp config.yaml /app/share/komp-timetracker/komp_timetracker/default-config.yaml",
+        
         "# Install wrapper as komp-control",
         "cp komp-control-wrapper /app/bin/komp-control",
         "chmod +x /app/bin/komp-control",
+        
         "# Create desktop file",
-        "printf '[Desktop Entry]\nVersion=1.0\nType=Application\nName=Komp TimeTracker\nComment=Parental Control for Bazzite Linux\nExec=komp-control status\nTerminal=true\nCategories=Utility;Security;System;\n' > /app/share/applications/com.komp_timetracker.KompTimeTracker.desktop"
+        "printf '[Desktop Entry]\nVersion=1.0\nType=Application\nName=Komp TimeTracker\nComment=Parental Control for Bazzite Linux\nExec=komp-control status\nTerminal=true\nCategories=Utility;Security;System;\n' > /app/share/applications/com.komp_timetracker.KompTimeTracker.desktop",
+        
+        "# Install Python dependencies using the SDK's pip into /app/lib",
+        "pip3 install --prefix=/app pyyaml pydantic click rich psutil systemd-python dbus-python",
+        
+        "# Clean up any __pycache__",
+        "find /app/share/komp-timetracker -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true"
       ],
       "sources": [
         {
@@ -55,6 +64,10 @@
         {
           "type": "file",
           "path": "komp-control-wrapper"
+        },
+        {
+          "type": "file",
+          "path": "requirements.txt"
         }
       ]
     }
