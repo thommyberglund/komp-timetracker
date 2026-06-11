@@ -54,22 +54,11 @@
         "mkdir -p /app/bin",
         "mkdir -p /app/share/komp-timetracker",
         "mkdir -p /app/share/applications",
-        "mkdir -p /app/share/icons/hicolor/256x256/apps",
         "cp -r src /app/share/komp-timetracker/",
         "cp config.yaml /app/share/komp-timetracker/default-config.yaml",
-        "cat > /app/bin/komp-control << 'EOF'",
-        "#!/bin/bash",
-        "export PYTHONPATH=/app/share/komp-timetracker",
-        "export KOMP_CONFIG=${XDG_CONFIG_HOME:-$HOME/.config}/komp-timetracker/config.yaml",
-        "export KOMP_DB=${XDG_DATA_HOME:-$HOME/.local/share}/komp-timetracker/usage.db",
-        "mkdir -p $(dirname "$KOMP_CONFIG")",
-        "if [ ! -f "$KOMP_CONFIG" ]; then",
-        "    cp /app/share/komp-timetracker/default-config.yaml "$KOMP_CONFIG",
-        "fi",
-        "exec python3 -m komp_timetracker.ui.cli "$@",
-        "EOF",
+        "cp komp-control-wrapper /app/bin/komp-control",
         "chmod +x /app/bin/komp-control",
-        "cat > /app/share/applications/com.komp_timetracker.KompTimeTracker.desktop << 'EOF'",
+        "cat > /app/share/applications/com.komp_timetracker.KompTimeTracker.desktop << DESKTOP_EOF",
         "[Desktop Entry]",
         "Version=1.0",
         "Type=Application",
@@ -80,7 +69,7 @@
         "Terminal=true",
         "Categories=Utility;Security;System;",
         "StartupNotify=false",
-        "EOF"
+        "DESKTOP_EOF"
       ],
       "sources": [
         {
@@ -90,6 +79,10 @@
         {
           "type": "file",
           "path": "config.yaml"
+        },
+        {
+          "type": "file",
+          "path": "komp-control-wrapper"
         }
       ]
     }

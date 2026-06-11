@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Komp TimeTracker wrapper script for Flatpak
+# This handles environment setup and runs the CLI
+
+# Set up environment for Flatpak
+export PYTHONPATH=/app/share/komp-timetracker
+
+# Set config and database paths
+export KOMP_CONFIG=${XDG_CONFIG_HOME:-$HOME/.config}/komp-timetracker/config.yaml
+export KOMP_DB=${XDG_DATA_HOME:-$HOME/.local/share}/komp-timetracker/usage.db
+
+# Create config directory if it doesn't exist
+mkdir -p "$(dirname "$KOMP_CONFIG")"
+
+# Copy default config if none exists
+if [ ! -f "$KOMP_CONFIG" ]; then
+    cp /app/share/komp-timetracker/default-config.yaml "$KOMP_CONFIG"
+fi
+
+# Run the CLI
+exec python3 -m komp_timetracker.ui.cli "$@"
