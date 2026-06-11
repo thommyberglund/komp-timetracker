@@ -31,12 +31,18 @@
       "buildsystem": "simple",
       "build-commands": [
         "# Create directory structure for Python package",
-        "mkdir -p /app/bin /app/lib /app/share/komp-timetracker /app/share/applications",
+        "mkdir -p /app/bin /app/lib /app/share/komp-timetracker/komp_timetracker /app/share/applications",
         
-        "# Copy src directory as komp_timetracker package",
-        "cp -r src /app/share/komp-timetracker/komp_timetracker",
+        "# Copy all source files to komp_timetracker package directory",
+        "cp -r . /app/share/komp-timetracker/komp_timetracker/",
         
-        "# Copy config file to package directory",
+        "# Remove the wrapper from the package directory (it goes to /app/bin)",
+        "rm -f /app/share/komp-timetracker/komp_timetracker/komp-control-wrapper",
+        
+        "# Remove config.yaml from package directory (we'll copy it as default-config.yaml)",
+        "rm -f /app/share/komp-timetracker/komp_timetracker/config.yaml",
+        
+        "# Copy config file as default-config.yaml",
         "cp config.yaml /app/share/komp-timetracker/komp_timetracker/default-config.yaml",
         
         "# Install wrapper as komp-control",
