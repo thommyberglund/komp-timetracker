@@ -30,9 +30,7 @@
       "name": "komp-timetracker",
       "buildsystem": "simple",
       "build-commands": [
-        "mkdir -p /app/bin",
-        "mkdir -p /app/share/komp-timetracker",
-        "mkdir -p /app/share/applications",
+        "mkdir -p /app/bin /app/share/komp-timetracker /app/share/applications",
         "cp -r src /app/share/komp-timetracker/",
         "cp config.yaml /app/share/komp-timetracker/default-config.yaml",
         "cp komp-control-wrapper /app/bin/komp-control",

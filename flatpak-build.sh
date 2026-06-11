@@ -12,6 +12,9 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Check if flatpak is installed
 if ! command -v flatpak &> /dev/null; then
     echo -e "${RED}Error: flatpak is not installed${NC}"
@@ -53,8 +56,8 @@ fi
 
 # Install Python dependencies system-wide to avoid network issues in sandbox
 echo -e "${BLUE}Installing Python dependencies system-wide...${NC}"
-if [ -f requirements.txt ]; then
-    sudo pip3 install -r requirements.txt 2>/dev/null || {
+if [ -f "$SCRIPT_DIR/requirements.txt" ]; then
+    sudo pip3 install -r "$SCRIPT_DIR/requirements.txt" 2>/dev/null || {
         echo -e "${YELLOW}Warning: Could not install Python dependencies system-wide${NC}"
         echo "You may need to install them manually:"
         echo "  sudo pip3 install pyyaml pydantic click rich psutil"
@@ -62,15 +65,17 @@ if [ -f requirements.txt ]; then
 fi
 
 # Create build directory
-BUILD_DIR="./flatpak-build"
+BUILD_DIR="$SCRIPT_DIR/flatpak-build"
 APP_ID="com.komp_timetracker.KompTimeTracker"
-MANIFEST="${APP_ID}.json"
+MANIFEST="$SCRIPT_DIR/$APP_ID.json"
 
 mkdir -p "$BUILD_DIR"
 
 echo -e "${BLUE}Building Komp TimeTracker Flatpak...${NC}"
 
-# Build the Flatpak
+# Build the Flatpak from the script directory
+cd "$SCRIPT_DIR"
+
 flatpak-builder \
     --user \
     --install \
@@ -118,8 +123,9 @@ else
         echo "  flatpak-builder --version"
         echo "  flatpak list --app | grep freedesktop"
         echo
-        echo "And try building manually with:"
-        echo "  flatpak-builder --user --install $MANIFEST"
+        echo "And try building manually from the repo directory:"
+        echo "  cd $SCRIPT_DIR"
+        echo "  flatpak-builder --user --install $APP_ID.json"
         exit 1
     fi
 fi
