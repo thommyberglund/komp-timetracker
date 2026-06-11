@@ -31,9 +31,18 @@
       "buildsystem": "simple",
       "build-commands": [
         "mkdir -p /app/bin /app/share/komp-timetracker /app/share/applications",
-        "cp -r . /app/share/komp-timetracker/",
+        "# Create the komp_timetracker package directory",
+        "mkdir -p /app/share/komp-timetracker/komp_timetracker",
+        "# Copy all source files to the package directory",
+        "cp -r src/* /app/share/komp-timetracker/komp_timetracker/",
+        "# Copy the __init__.py from src root",
+        "cp src/__init__.py /app/share/komp-timetracker/komp_timetracker/",
+        "# Copy config file",
+        "cp config.yaml /app/share/komp-timetracker/komp_timetracker/default-config.yaml",
+        "# Install wrapper as komp-control",
         "cp komp-control-wrapper /app/bin/komp-control",
         "chmod +x /app/bin/komp-control",
+        "# Create desktop file",
         "printf '[Desktop Entry]\nVersion=1.0\nType=Application\nName=Komp TimeTracker\nComment=Parental Control for Bazzite Linux\nExec=komp-control status\nTerminal=true\nCategories=Utility;Security;System;\n' > /app/share/applications/com.komp_timetracker.KompTimeTracker.desktop"
       ],
       "sources": [

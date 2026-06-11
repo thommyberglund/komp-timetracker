@@ -16,10 +16,12 @@ mkdir -p "$(dirname "$KOMP_CONFIG")"
 # Copy default config if none exists
 if [ ! -f "$KOMP_CONFIG" ]; then
     # Check if default config exists in app directory
-    if [ -f /app/share/komp-timetracker/config.yaml ]; then
+    if [ -f /app/share/komp-timetracker/komp_timetracker/default-config.yaml ]; then
+        cp /app/share/komp-timetracker/komp_timetracker/default-config.yaml "$KOMP_CONFIG"
+    elif [ -f /app/share/komp-timetracker/komp_timetracker/config.yaml ]; then
+        cp /app/share/komp-timetracker/komp_timetracker/config.yaml "$KOMP_CONFIG"
+    elif [ -f /app/share/komp-timetracker/config.yaml ]; then
         cp /app/share/komp-timetracker/config.yaml "$KOMP_CONFIG"
-    elif [ -f /app/share/komp-timetracker/default-config.yaml ]; then
-        cp /app/share/komp-timetracker/default-config.yaml "$KOMP_CONFIG"
     else
         # Create a minimal default config
         cat > "$KOMP_CONFIG" << 'EOF'
