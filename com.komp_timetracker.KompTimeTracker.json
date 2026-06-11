@@ -31,22 +31,10 @@
       "buildsystem": "simple",
       "build-commands": [
         "mkdir -p /app/bin /app/share/komp-timetracker /app/share/applications",
-        "# Copy all files to app directory",
         "cp -r . /app/share/komp-timetracker/",
-        "# Install wrapper as komp-control",
         "cp komp-control-wrapper /app/bin/komp-control",
         "chmod +x /app/bin/komp-control",
-        "# Create desktop file",
-        "cat > /app/share/applications/com.komp_timetracker.KompTimeTracker.desktop << DESKTOP_EOF",
-        "[Desktop Entry]",
-        "Version=1.0",
-        "Type=Application",
-        "Name=Komp TimeTracker",
-        "Comment=Parental Control for Bazzite Linux",
-        "Exec=komp-control status",
-        "Terminal=true",
-        "Categories=Utility;Security;System;",
-        "DESKTOP_EOF"
+        "printf '[Desktop Entry]\nVersion=1.0\nType=Application\nName=Komp TimeTracker\nComment=Parental Control for Bazzite Linux\nExec=komp-control status\nTerminal=true\nCategories=Utility;Security;System;\n' > /app/share/applications/com.komp_timetracker.KompTimeTracker.desktop"
       ],
       "sources": [
         {
