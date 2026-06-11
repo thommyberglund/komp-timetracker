@@ -1,0 +1,142 @@
+{
+  "app-id": "com.komp_timetracker.KompTimeTracker",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "23.08",
+  "sdk": "org.freedesktop.Sdk",
+  "command": "komp-control",
+  "finish-args": [
+    "--socket=wayland",
+    "--socket=x11",
+    "--socket=pulseaudio",
+    "--share=ipc",
+    "--share=network",
+    "--filesystem=host",
+    "--filesystem=xdg-config/komp-timetracker:create",
+    "--filesystem=xdg-data/komp-timetracker:create",
+    "--filesystem=xdg-cache/komp-timetracker:create",
+    "--filesystem=/var/lib/flatpak:ro",
+    "--filesystem=/run/systemd:ro",
+    "--talk-name=org.freedesktop.Flatpak",
+    "--talk-name=org.freedesktop.DBus.Properties",
+    "--talk-name=org.freedesktop.login1",
+    "--talk-name=org.freedesktop.systemd1",
+    "--system-talk-name=org.freedesktop.login1",
+    "--system-talk-name=org.freedesktop.systemd1",
+    "--device=dri",
+    "--device=all"
+  ],
+  "add-extensions": {
+    "org.freedesktop.Platform.Gtk3": {
+      "directory": "lib/gtk-3.0",
+      "version": "44"
+    }
+  },
+  "build-options": {
+    "cflags": "-O2 -g",
+    "cxxflags": "-O2 -g",
+    "ldflags": "-Wl,-O1 -Wl,--as-needed",
+    "env": {
+      "PYTHONPATH": "/app/share/komp-timetracker"
+    }
+  },
+  "modules": [
+    {
+      "name": "python-deps",
+      "buildsystem": "simple",
+      "build-commands": [
+        "pip3 install --prefix=/app --no-deps -r requirements.txt"
+      ],
+      "sources": [
+        {
+          "type": "file",
+          "path": "requirements.txt"
+        }
+      ]
+    },
+    {
+      "name": "komp-timetracker",
+      "buildsystem": "simple",
+      "build-commands": [
+        "# Create directories",
+        "mkdir -p /app/bin",
+        "mkdir -p /app/share/komp-timetracker",
+        "mkdir -p /app/share/applications",
+        "mkdir -p /app/share/icons/hicolor/256x256/apps",
+        
+        "# Copy source files",
+        "cp -r src /app/share/komp-timetracker/",
+        "cp config.yaml /app/share/komp-timetracker/default-config.yaml",
+        
+        "# Create the main entry point",
+        "cat > /app/bin/komp-control << 'WRAPPER_EOF'",
+        "#!/bin/bash",
+        "",
+        "# Set up environment for Flatpak",
+        "export PYTHONPATH=/app/share/komp-timetracker",
+        "export KOMP_CONFIG=${XDG_CONFIG_HOME:-$HOME/.config}/komp-timetracker/config.yaml",
+        "export KOMP_DB=${XDG_DATA_HOME:-$HOME/.local/share}/komp-timetracker/usage.db",
+        "",
+        "# Create config directory if it doesn't exist",
+        "mkdir -p \"$(dirname \"$KOMP_CONFIG\")"",
+        "",
+        "# Copy default config if none exists",
+        "if [ ! -f \"$KOMP_CONFIG\" ]; then",
+        "    cp /app/share/komp-timetracker/default-config.yaml \"$KOMP_CONFIG\"",
+        "fi",
+        "",
+        "# Run the CLI",
+        "exec python3 -m komp_timetracker.ui.cli \"$@\"",
+        "WRAPPER_EOF",
+        "chmod +x /app/bin/komp-control",
+        
+        "# Create desktop file",
+        "cat > /app/share/applications/$APP_ID.desktop << 'DESKTOP_EOF'",
+        "[Desktop Entry]",
+        "Version=1.0",
+        "Type=Application",
+        "Name=Komp TimeTracker",
+        "Comment=Parental Control for Bazzite Linux",
+        "Exec=komp-control status",
+        "Icon=$APP_ID",
+        "Terminal=true",
+        "Categories=Utility;Security;System;",
+        "StartupNotify=false",
+        "DESKTOP_EOF",
+        
+        "# Create a simple icon (placeholder)",
+        "cat > /app/share/icons/hicolor/256x256/apps/$APP_ID.png << 'ICON_EOF'",
+        "This would be replaced with an actual icon in production",
+        "ICON_EOF"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "src"
+        },
+        {
+          "type": "file",
+          "path": "config.yaml"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "name": "Komp TimeTracker",
+    "description": "A comprehensive parental control application for Bazzite Linux with time limits, application restrictions, web filtering, and usage monitoring.",
+    "keywords": [
+      "parental-control",
+      "time-tracking", 
+      "bazzite",
+      "flatpak",
+      "steam",
+      "monitoring",
+      "restrictions",
+      "family",
+      "safety"
+    ],
+    "homepage": "https://github.com/thommyberglund/komp-timetracker",
+    "license": "MIT",
+    "maintainer": "Thommy Berglund",
+    "categories": ["Utility", "Security", "System", "Settings"]
+  }
+}
