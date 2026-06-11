@@ -1,7 +1,7 @@
 {
   "app-id": "com.komp_timetracker.KompTimeTracker",
   "runtime": "org.freedesktop.Platform",
-  "runtime-version": "23.08",
+  "runtime-version": "22.08",
   "sdk": "org.freedesktop.Sdk",
   "command": "komp-control",
   "finish-args": [
@@ -14,16 +14,11 @@
     "--filesystem=xdg-config/komp-timetracker:create",
     "--filesystem=xdg-data/komp-timetracker:create",
     "--filesystem=xdg-cache/komp-timetracker:create",
-    "--filesystem=/var/lib/flatpak:ro",
-    "--filesystem=/run/systemd:ro",
     "--talk-name=org.freedesktop.Flatpak",
     "--talk-name=org.freedesktop.DBus.Properties",
     "--talk-name=org.freedesktop.login1",
-    "--talk-name=org.freedesktop.systemd1",
     "--system-talk-name=org.freedesktop.login1",
-    "--system-talk-name=org.freedesktop.systemd1",
-    "--device=dri",
-    "--device=all"
+    "--device=dri"
   ],
   "build-options": {
     "cflags": "-O2 -g",
@@ -65,10 +60,8 @@
         "Name=Komp TimeTracker",
         "Comment=Parental Control for Bazzite Linux",
         "Exec=komp-control status",
-        "Icon=com.komp_timetracker.KompTimeTracker",
         "Terminal=true",
         "Categories=Utility;Security;System;",
-        "StartupNotify=false",
         "DESKTOP_EOF"
       ],
       "sources": [
@@ -97,13 +90,10 @@
       "flatpak",
       "steam",
       "monitoring",
-      "restrictions",
-      "family",
-      "safety"
+      "restrictions"
     ],
     "homepage": "https://github.com/thommyberglund/komp-timetracker",
     "license": "MIT",
-    "maintainer": "Thommy Berglund",
-    "categories": ["Utility", "Security", "System", "Settings"]
+    "maintainer": "Thommy Berglund"
   }
 }

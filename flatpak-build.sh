@@ -26,20 +26,41 @@ if ! command -v flatpak-builder &> /dev/null; then
     sudo dnf install flatpak-builder
 fi
 
+# Check and install required runtimes
+RUNTIME="org.freedesktop.Platform"
+SDK="org.freedesktop.Sdk"
+RUNTIME_VERSION="22.08"
+
+echo -e "${BLUE}Checking required runtimes...${NC}"
+
+# Check if Flathub is added
+if ! flatpak remote-list | grep -q flathub; then
+    echo -e "${YELLOW}Adding Flathub repository...${NC}"
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+fi
+
+# Install runtime if not present
+if ! flatpak list --app | grep -q "${RUNTIME} ${RUNTIME_VERSION}"; then
+    echo -e "${YELLOW}Installing ${RUNTIME} ${RUNTIME_VERSION}...${NC}"
+    flatpak install flathub ${RUNTIME}//${RUNTIME_VERSION} -y
+fi
+
+# Install SDK if not present
+if ! flatpak list --app | grep -q "${SDK} ${RUNTIME_VERSION}"; then
+    echo -e "${YELLOW}Installing ${SDK} ${RUNTIME_VERSION}...${NC}"
+    flatpak install flathub ${SDK}//${RUNTIME_VERSION} -y
+fi
+
 # Create build directory
 BUILD_DIR="./flatpak-build"
-REPO_DIR="./flatpak-repo"
 APP_ID="com.komp_timetracker.KompTimeTracker"
 MANIFEST="${APP_ID}.json"
 
 mkdir -p "$BUILD_DIR"
-mkdir -p "$REPO_DIR"
 
 echo -e "${BLUE}Building Komp TimeTracker Flatpak...${NC}"
 
-# Build the Flatpak - using syntax compatible with flatpak-builder on Bazzite
-# The --build-dir and --repo flags might not be supported in older versions
-# So we'll use the basic syntax that works across versions
+# Build the Flatpak
 flatpak-builder \
     --user \
     --install \
@@ -56,16 +77,14 @@ if [ $? -eq 0 ]; then
     echo "You can now run:"
     echo "  flatpak run $APP_ID --help"
     echo
-    echo "Or create a desktop entry:"
-    echo "  flatpak run --command=gtk-update-icon-cache $APP_ID -f -t"
-    echo "  flatpak run --command=update-desktop-database $APP_ID"
+    echo "Or check installation:"
+    echo "  flatpak list | grep komp_timetracker"
 else
     echo -e "${RED}✗ Build failed${NC}"
     echo
-    echo "Trying alternative build method..."
+    echo "Trying alternative build method without build directory..."
     
-    # Try building without --build-dir and --repo flags
-    echo -e "${BLUE}Attempting build without build-dir flag...${NC}"
+    # Try building without specifying build directory
     flatpak-builder \
         --user \
         --install \
@@ -77,8 +96,10 @@ else
     else
         echo -e "${RED}✗ All build methods failed${NC}"
         echo
-        echo "Please check your flatpak-builder version:"
-        flatpak-builder --version
+        echo "Please check your flatpak setup:"
+        echo "  flatpak --version"
+        echo "  flatpak-builder --version"
+        echo "  flatpak list --app | grep freedesktop"
         echo
         echo "And try building manually with:"
         echo "  flatpak-builder --user --install $MANIFEST"
