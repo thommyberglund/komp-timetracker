@@ -23,7 +23,8 @@
   "build-options": {
     "cflags": "-O2 -g",
     "cxxflags": "-O2 -g",
-    "ldflags": "-Wl,-O1 -Wl,--as-needed"
+    "ldflags": "-Wl,-O1 -Wl,--as-needed",
+    "build-args": ["--share=network"]
   },
   "modules": [
     {
@@ -53,7 +54,7 @@
         "printf '[Desktop Entry]\nVersion=1.0\nType=Application\nName=Komp TimeTracker\nComment=Parental Control for Bazzite Linux\nExec=komp-control status\nTerminal=true\nCategories=Utility;Security;System;\n' > /app/share/applications/com.komp_timetracker.KompTimeTracker.desktop",
         
         "# Install Python dependencies using the SDK's pip into /app/lib",
-        "pip3 install --prefix=/app pyyaml pydantic click rich psutil systemd-python dbus-python",
+        "pip3 install --prefix=/app --no-cache-dir pyyaml pydantic click rich psutil systemd-python dbus-python",
         
         "# Clean up any __pycache__",
         "find /app/share/komp-timetracker -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true"
