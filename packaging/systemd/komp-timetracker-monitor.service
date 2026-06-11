@@ -1,0 +1,20 @@
+[Unit]
+Description=Komp TimeTracker - Process Monitor Service
+After=network.target multi-user.target komp-timetracker.service
+Wants=komp-timetracker.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/bin/python3 -c "from komp_timetracker.monitor.tracker import ProcessMonitor; from komp_timetracker.config.manager import ConfigManager; from komp_timetracker.monitor.tracker import UsageTracker; pm = ProcessMonitor(UsageTracker(), ConfigManager()); pm.monitor_continuously()"
+Restart=always
+RestartSec=30
+Environment=PYTHONUNBUFFERED=1
+
+# Configuration paths
+Environment=KOMP_CONFIG=/etc/komp-timetracker/config.yaml
+Environment=KOMP_DB=/var/lib/komp-timetracker/usage.db
+
+[Install]
+WantedBy=multi-user.target

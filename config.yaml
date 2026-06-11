@@ -1,0 +1,124 @@
+# Komp TimeTracker Configuration
+# Parental Control for Bazzite Linux
+
+system:
+  # Method for enforcing restrictions: cgroups, flatpak, firewall, xdg-open
+  enforcement_method: "flatpak"
+  
+  # Grace period before restrictions are enforced (e.g., 5m, 10m)
+  grace_period: "5m"
+  
+  # Whether monitoring is enabled
+  monitoring_enabled: true
+  
+  # Days to retain usage data
+  data_retention_days: 30
+
+# User configurations
+users:
+  # Example child user
+  child1:
+    username: "child1"
+    display_name: "Child User 1"
+    age: 12
+    role: "child"
+    enabled: true
+    
+    # Time limits
+    time_limits:
+      daily: "2h"      # 2 hours per day
+      weekly: "10h"    # 10 hours per week
+      # monthly: "40h" # Optional monthly limit
+    
+    # Bedtime schedule
+    bedtime:
+      enabled: true
+      start: "21:00"   # 9:00 PM
+      end: "7:00"     # 7:00 AM
+      strict: false    # If true, completely block access during bedtime
+    
+    # Web filtering
+    web_filter:
+      enabled: true
+      safe_search: true
+      blocked_categories:
+        - "adult"
+        - "gambling"
+        - "violence"
+        - "social-media"
+      allowed_domains:
+        - "example.com"
+        - "school.edu"
+      blocked_domains:
+        - "youtube.com"
+        - "netflix.com"
+    
+    # Application restrictions
+    app_restrictions:
+      - app_id: "steam"
+        restriction_type: "limit"
+        time_limit: "1h"   # 1 hour per day for Steam
+        allowed: true
+      
+      - app_id: "org.gnome.Nautilus"
+        restriction_type: "allow"
+        allowed: true
+      
+      - app_id: "firefox"
+        restriction_type: "limit"
+        time_limit: "30m"  # 30 minutes per day for Firefox
+        allowed: true
+    
+    # Explicitly allowed applications (whitelist)
+    allowed_apps:
+      - "org.gnome.Calculator"
+      - "org.gnome.TextEditor"
+      - "org.gnome.Nautilus"
+    
+    # Explicitly restricted applications (blacklist)
+    restricted_apps:
+      - "discord"
+      - "spotify"
+
+  # Example teen user
+  teen1:
+    username: "teen1"
+    display_name: "Teen User 1"
+    age: 16
+    role: "teen"
+    enabled: true
+    
+    time_limits:
+      daily: "3h"
+      weekly: "15h"
+    
+    bedtime:
+      enabled: true
+      start: "22:00"
+      end: "6:00"
+      strict: false
+    
+    web_filter:
+      enabled: true
+      safe_search: true
+      blocked_categories:
+        - "adult"
+        - "gambling"
+      allowed_domains: []
+      blocked_domains: []
+    
+    app_restrictions:
+      - app_id: "steam"
+        restriction_type: "limit"
+        time_limit: "2h"
+        allowed: true
+    
+    allowed_apps: []
+    restricted_apps:
+      - "discord"
+
+# Monitoring configuration
+monitoring:
+  track_apps: true      # Track application usage
+  track_web: true      # Track web activity
+  retention_days: 30   # Days to retain monitoring data

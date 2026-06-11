@@ -1,0 +1,30 @@
+{
+  "app-id": "com.komp_timetracker.SteamWrapper",
+  "runtime": "org.freedesktop.Platform",
+  "runtime-version": "23.08",
+  "sdk": "org.freedesktop.Sdk",
+  "command": "komp-timetracker-steam-wrapper",
+  "finish-args": [
+    "--socket=wayland",
+    "--socket=x11",
+    "--share=ipc",
+    "--share=network",
+    "--filesystem=host",
+    "--device=dri"
+  ],
+  "modules": [
+    {
+      "name": "komp-timetracker-steam",
+      "buildsystem": "simple",
+      "build-commands": [
+        "install -Dm755 komp-timetracker-steam-wrapper /app/bin/komp-timetracker-steam-wrapper"
+      ],
+      "sources": [
+        {
+          "type": "file",
+          "path": "komp-timetracker-steam-wrapper"
+        }
+      ]
+    }
+  ]
+}
