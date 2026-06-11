@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Komp TimeTracker wrapper script for Flatpak
-# This handles environment setup and runs the CLI
+# This handles environment setup, dependency checks, and runs the CLI
 
 # Set up environment for Flatpak
 export PYTHONPATH=/app/share/komp-timetracker
@@ -17,6 +17,25 @@ mkdir -p "$(dirname "$KOMP_CONFIG")"
 if [ ! -f "$KOMP_CONFIG" ]; then
     cp /app/share/komp-timetracker/default-config.yaml "$KOMP_CONFIG"
 fi
+
+# Check for required Python modules and install if missing
+check_python_module() {
+    local module=$1
+    if ! python3 -c "import $module" 2>/dev/null; then
+        echo "Installing missing Python module: $module"
+        pip3 install --user "$module" 2>/dev/null || {
+            echo "Warning: Could not install $module automatically"
+            echo "Please install manually: pip3 install --user $module"
+        }
+    fi
+}
+
+# Check for required modules
+check_python_module pyyaml
+check_python_module pydantic
+check_python_module click
+check_python_module rich
+check_python_module psutil
 
 # Run the CLI
 exec python3 -m komp_timetracker.ui.cli "$@"

@@ -23,25 +23,9 @@
   "build-options": {
     "cflags": "-O2 -g",
     "cxxflags": "-O2 -g",
-    "ldflags": "-Wl,-O1 -Wl,--as-needed",
-    "env": {
-      "PYTHONPATH": "/app/share/komp-timetracker"
-    }
+    "ldflags": "-Wl,-O1 -Wl,--as-needed"
   },
   "modules": [
-    {
-      "name": "python-deps",
-      "buildsystem": "simple",
-      "build-commands": [
-        "pip3 install --prefix=/app --no-deps -r requirements.txt"
-      ],
-      "sources": [
-        {
-          "type": "file",
-          "path": "requirements.txt"
-        }
-      ]
-    },
     {
       "name": "komp-timetracker",
       "buildsystem": "simple",
@@ -79,21 +63,5 @@
         }
       ]
     }
-  ],
-  "metadata": {
-    "name": "Komp TimeTracker",
-    "description": "A comprehensive parental control application for Bazzite Linux with time limits, application restrictions, web filtering, and usage monitoring.",
-    "keywords": [
-      "parental-control",
-      "time-tracking",
-      "bazzite",
-      "flatpak",
-      "steam",
-      "monitoring",
-      "restrictions"
-    ],
-    "homepage": "https://github.com/thommyberglund/komp-timetracker",
-    "license": "MIT",
-    "maintainer": "Thommy Berglund"
-  }
+  ]
 }

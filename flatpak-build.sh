@@ -51,6 +51,16 @@ if ! flatpak list --app | grep -q "${SDK} ${RUNTIME_VERSION}"; then
     flatpak install flathub ${SDK}//${RUNTIME_VERSION} -y
 fi
 
+# Install Python dependencies system-wide to avoid network issues in sandbox
+echo -e "${BLUE}Installing Python dependencies system-wide...${NC}"
+if [ -f requirements.txt ]; then
+    sudo pip3 install -r requirements.txt 2>/dev/null || {
+        echo -e "${YELLOW}Warning: Could not install Python dependencies system-wide${NC}"
+        echo "You may need to install them manually:"
+        echo "  sudo pip3 install pyyaml pydantic click rich psutil"
+    }
+fi
+
 # Create build directory
 BUILD_DIR="./flatpak-build"
 APP_ID="com.komp_timetracker.KompTimeTracker"
@@ -79,6 +89,10 @@ if [ $? -eq 0 ]; then
     echo
     echo "Or check installation:"
     echo "  flatpak list | grep komp_timetracker"
+    echo
+    echo "Note: If you get Python module errors, run:"
+    echo "  flatpak run $APP_ID status"
+    echo "This will install any missing Python modules on first run."
 else
     echo -e "${RED}✗ Build failed${NC}"
     echo
@@ -93,6 +107,9 @@ else
     
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Alternative build method succeeded!${NC}"
+        echo
+        echo "Note: If you get Python module errors, run:"
+        echo "  flatpak run $APP_ID status"
     else
         echo -e "${RED}✗ All build methods failed${NC}"
         echo
