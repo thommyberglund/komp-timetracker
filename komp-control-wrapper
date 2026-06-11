@@ -15,7 +15,28 @@ mkdir -p "$(dirname "$KOMP_CONFIG")"
 
 # Copy default config if none exists
 if [ ! -f "$KOMP_CONFIG" ]; then
-    cp /app/share/komp-timetracker/default-config.yaml "$KOMP_CONFIG"
+    # Check if default config exists in app directory
+    if [ -f /app/share/komp-timetracker/config.yaml ]; then
+        cp /app/share/komp-timetracker/config.yaml "$KOMP_CONFIG"
+    elif [ -f /app/share/komp-timetracker/default-config.yaml ]; then
+        cp /app/share/komp-timetracker/default-config.yaml "$KOMP_CONFIG"
+    else
+        # Create a minimal default config
+        cat > "$KOMP_CONFIG" << 'EOF'
+system:
+  enforcement_method: "flatpak"
+  grace_period: "5m"
+  monitoring_enabled: true
+  data_retention_days: 30
+
+users: {}
+
+monitoring:
+  track_apps: true
+  track_web: true
+  retention_days: 30
+EOF
+    fi
 fi
 
 # Check for required Python modules and install if missing
@@ -23,10 +44,12 @@ check_python_module() {
     local module=$1
     if ! python3 -c "import $module" 2>/dev/null; then
         echo "Installing missing Python module: $module"
-        pip3 install --user "$module" 2>/dev/null || {
+        if pip3 install --user "$module" 2>/dev/null; then
+            echo "Successfully installed $module"
+        else
             echo "Warning: Could not install $module automatically"
             echo "Please install manually: pip3 install --user $module"
-        }
+        fi
     fi
 }
 
@@ -36,6 +59,10 @@ check_python_module pydantic
 check_python_module click
 check_python_module rich
 check_python_module psutil
+check_python_module systemd-python
+check_python_module python-dateutil
+check_python_module pytz
 
-# Run the CLI
-exec python3 -m komp_timetracker.ui.cli "$@"
+# Run the CLI from the app directory
+cd /app/share/komp-timetracker
+python3 -m komp_timetracker.ui.cli "$@"
