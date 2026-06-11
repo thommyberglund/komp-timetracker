@@ -30,20 +30,22 @@ fi
 BUILD_DIR="./flatpak-build"
 REPO_DIR="./flatpak-repo"
 APP_ID="com.komp_timetracker.KompTimeTracker"
+MANIFEST="${APP_ID}.json"
 
 mkdir -p "$BUILD_DIR"
 mkdir -p "$REPO_DIR"
 
 echo -e "${BLUE}Building Komp TimeTracker Flatpak...${NC}"
 
-# Build the Flatpak
+# Build the Flatpak - using syntax compatible with flatpak-builder on Bazzite
+# The --build-dir and --repo flags might not be supported in older versions
+# So we'll use the basic syntax that works across versions
 flatpak-builder \
     --user \
     --install \
     --force-clean \
-    --build-dir="$BUILD_DIR" \
-    "$REPO_DIR" \
-    "${APP_ID}.json"
+    "$BUILD_DIR" \
+    "$MANIFEST"
 
 echo -e "${GREEN}Build completed!${NC}"
 
@@ -59,5 +61,27 @@ if [ $? -eq 0 ]; then
     echo "  flatpak run --command=update-desktop-database $APP_ID"
 else
     echo -e "${RED}✗ Build failed${NC}"
-    exit 1
+    echo
+    echo "Trying alternative build method..."
+    
+    # Try building without --build-dir and --repo flags
+    echo -e "${BLUE}Attempting build without build-dir flag...${NC}"
+    flatpak-builder \
+        --user \
+        --install \
+        --force-clean \
+        "$MANIFEST"
+    
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✓ Alternative build method succeeded!${NC}"
+    else
+        echo -e "${RED}✗ All build methods failed${NC}"
+        echo
+        echo "Please check your flatpak-builder version:"
+        flatpak-builder --version
+        echo
+        echo "And try building manually with:"
+        echo "  flatpak-builder --user --install $MANIFEST"
+        exit 1
+    fi
 fi
